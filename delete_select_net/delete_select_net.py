@@ -55,8 +55,6 @@ class Deleteselectnet(pcb.ActionPlugin):
 					for teardrop in teardrops_zones[netname]:
 						board.Remove(teardrop)
 			
-			filler = pcb.ZONE_FILLER(board)
-			filler.Fill(board.Zones())
 			
 			for track in delete_tracks:
 				board.Remove(track)
@@ -65,5 +63,7 @@ class Deleteselectnet(pcb.ActionPlugin):
 			for mod in delete_modules:
 				board.Remove(mod)
 				
+			filler = pcb.ZONE_FILLER(board)
+			filler.Fill(board.Zones())
 		else:
 			wx.MessageBox("No pad or track selected")
