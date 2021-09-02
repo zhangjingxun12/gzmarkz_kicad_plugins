@@ -66,4 +66,4 @@ class Deleteselectnet(pcb.ActionPlugin):
 			filler = pcb.ZONE_FILLER(board)
 			filler.Fill(board.Zones())
 		else:
-			wx.MessageBox("没有选中")
+			wx.MessageBox("没有选中的连线或焊盘")
