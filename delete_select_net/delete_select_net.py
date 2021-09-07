@@ -2,12 +2,6 @@ import wx
 import os
 import pcbnew as pcb
 
-'''
-	此处参考泪滴插件的magicid
-	参考插件 kicad_scripts-master\teardrops
-'''
-MAGIC_TEARDROP_ZONE_ID = 0x4242
-
 	
 	
 class Deleteselectnet(pcb.ActionPlugin):
@@ -24,6 +18,8 @@ class Deleteselectnet(pcb.ActionPlugin):
 		if len(net)==0:
 			tracks = board.GetTracks()
 			net = [t.GetNetname() for t in tracks if t.IsSelected()]
+		if len(net)==0:
+			net = [zone.GetNetname() for zone in [board.GetArea(i) for i in range(board.GetAreaCount())] if zone.IsSelected()]
 		if len(net) :
 			netcode = board.GetNetcodeFromNetname(net[0])
 			tracks_on_net = board.TracksInNet(netcode)
@@ -43,23 +39,14 @@ class Deleteselectnet(pcb.ActionPlugin):
 			delete_modules = [x for x in all_modules if x.IsSelected()]
 			
 			
-			teardrops_zones = {}
+			fill_zones = {}
 			for zone in [board.GetArea(i) for i in range(board.GetAreaCount())]:
-				if zone.GetPriority() == MAGIC_TEARDROP_ZONE_ID:
-					netname = zone.GetNetname()
-					if netname not in teardrops_zones.keys():
-						teardrops_zones[netname] = []
-					teardrops_zones[netname].append(zone)
-			for netname in teardrops_zones:
-				if netname == net[0]:
-					for teardrop in teardrops_zones[netname]:
-						board.Remove(teardrop)
+				if net[0] == zone.GetNetname():
+					board.Remove(zone)
 			
 			
 			for track in delete_tracks:
 				board.Remove(track)
-			for zone in delete_zones:
-				board.Remove(zone)
 			for mod in delete_modules:
 				board.Remove(mod)
 				
