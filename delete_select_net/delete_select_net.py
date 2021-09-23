@@ -3,7 +3,6 @@ import os
 import pcbnew as pcb
 
 	
-	
 class Deleteselectnet(pcb.ActionPlugin):
 	def defaults(self):
 		self.name = '删除选中的网络连线'
@@ -18,40 +17,19 @@ class Deleteselectnet(pcb.ActionPlugin):
 		if len(net)==0:
 			tracks = board.GetTracks()
 			net = [t.GetNetname() for t in tracks if t.IsSelected()]
+		zones = [board.GetArea(i) for i in range(board.GetAreaCount())]
 		if len(net)==0:
-			net = [zone.GetNetname() for zone in [board.GetArea(i) for i in range(board.GetAreaCount())] if zone.IsSelected()]
+			net = [zone.GetNetname() for zone in zones if zone.IsSelected()]
 		if len(net) :
 			netcode = board.GetNetcodeFromNetname(net[0])
 			tracks_on_net = board.TracksInNet(netcode)
-			length = 0
-			for t in tracks_on_net:
-				t.SetSelected()
-			
-			all_tracks = board.GetTracks()
-			delete_tracks = [x for x in all_tracks if x.IsSelected()]
-
-			all_zones = []
-			for zoneid in range(board.GetAreaCount()):
-				all_zones.append(board.GetArea(zoneid))
-			delete_zones = [x for x in all_zones if x.IsSelected()]
-
-			all_modules = board.GetFootprints()
-			delete_modules = [x for x in all_modules if x.IsSelected()]
-			
-			
-			fill_zones = {}
-			for zone in [board.GetArea(i) for i in range(board.GetAreaCount())]:
+			for track in tracks_on_net:
+				board.Remove(track)
+			for zone in zones:
 				if net[0] == zone.GetNetname():
 					board.Remove(zone)
-			
-			
-			for track in delete_tracks:
-				board.Remove(track)
-			for mod in delete_modules:
-				board.Remove(mod)
-				
 			filler = pcb.ZONE_FILLER(board)
 			filler.Fill(board.Zones())
-			pcb.Refresh() 
+			#pcb.Refresh() 
 		else:
 			wx.MessageBox("没有选中的连线或焊盘")
